@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — CineAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #0a0a0f;
+      --cream: #f5f0e8;
+      --gold: #d4a843;
+      --red: #c0392b;
+      --green: #43b89c;
+      --purple: #a29bfe;
+      --silver: #8e9aaf;
+      --card-bg: #12121a;
+      --card2: #1a1a26;
+      --border: rgba(212,168,67,0.18);
+      --input-bg: #1a1a26;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .logo { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; letter-spacing:4px; color:var(--gold); text-decoration:none; margin-bottom:2rem; display:block; }
+    .logo span { color:var(--cream); }
+
+    /* MODEL STATUS BANNER */
+    .status-panel { margin-bottom: 1.5rem; }
+    .status-item {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--silver);
+      margin-bottom: 4px;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot-red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+
+    .user-badge {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1rem; background: var(--card2);
+      border: 1px solid var(--border); margin-bottom: 1.5rem;
+    }
+    .avatar {
+      width:38px; height:38px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:0.9rem; color:var(--ink); flex-shrink:0;
+    }
+    .user-info .name { font-weight:600; font-size:0.9rem; }
+    .user-info .role { font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--silver); }
+
+    nav { display:flex; flex-direction:column; gap:0.2rem; flex:1; }
+    .nav-item {
+      display:flex; align-items:center; gap:0.75rem;
+      padding:0.7rem 1rem; color:var(--silver);
+      text-decoration:none; font-size:0.88rem;
+      border:1px solid transparent; transition:all 0.2s;
+      cursor:pointer; background:none; width:100%; text-align:left;
+      font-family:'DM Sans',sans-serif;
+    }
+    .nav-item:hover, .nav-item.active {
+      color:var(--gold); background:rgba(212,168,67,0.06); border-color:var(--border);
+    }
+    .sidebar-footer { padding-top:1.5rem; border-top:1px solid var(--border); }
+    .logout-btn {
+      display:flex; align-items:center; gap:0.75rem;
+      padding:0.7rem 1rem; color:var(--silver);
+      text-decoration:none; font-size:0.88rem; transition:color 0.2s;
+    }
+    .logout-btn:hover { color:var(--red); }
+
+    /* MAIN */
+    .main { padding:2rem 2.5rem; overflow-y:auto; }
+    .main-header { margin-bottom:2rem; }
+    .main-header h1 { font-family:'Bebas Neue',sans-serif; font-size:2.5rem; letter-spacing:3px; }
+    .main-header .sub { color:var(--silver); font-size:0.88rem; margin-top:0.3rem; }
+
+    /* STATS */
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+    .stat-card { background:var(--card-bg); border:1px solid var(--border); padding:1.25rem; position:relative; overflow:hidden; }
+    .stat-card::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+    .stat-card:nth-child(1)::after { background:var(--gold); }
+    .stat-card:nth-child(2)::after { background:var(--green); }
+    .stat-card:nth-child(3)::after { background:var(--red); }
+    .stat-card:nth-child(4)::after { background:var(--purple); }
+    .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:2px; line-height:1; }
+    .stat-card:nth-child(1) .stat-num { color:var(--gold); }
+    .stat-card:nth-child(2) .stat-num { color:var(--green); }
+    .stat-card:nth-child(3) .stat-num { color:var(--red); }
+    .stat-card:nth-child(4) .stat-num { color:var(--purple); }
+    .stat-label { font-size:0.7rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--silver); margin-top:0.4rem; }
+
+    /* CONTENT */
+    .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    .card { background:var(--card-bg); border:1px solid var(--border); padding:1.75rem; }
+    .card-full { grid-column: 1 / -1; }
+    .card-title {
+      font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:2px;
+      color:var(--gold); margin-bottom:1.25rem;
+      display:flex; align-items:center; gap:0.75rem;
+    }
+    .card-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* FORM */
+    .form-group { margin-bottom:1.2rem; }
+    label { display:block; font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--silver); margin-bottom:0.45rem; }
+
+    /* MOVIE SEARCH */
+    .search-wrap { position: relative; }
+    .search-input {
+      width:100%; background:var(--input-bg); border:1px solid var(--border);
+      color:var(--cream); padding:0.85rem 1rem; font-family:'DM Sans',sans-serif;
+      font-size:0.95rem; outline:none; transition:border-color 0.3s;
+    }
+    .search-input:focus { border-color:var(--gold); }
+    .search-input::placeholder { color:rgba(142,154,175,0.4); }
+
+    .autocomplete-list {
+      position:absolute; top:100%; left:0; right:0;
+      background:#1e1e2e; border:1px solid var(--border); border-top:none;
+      z-index:200; max-height:280px; overflow-y:auto;
+    }
+    .autocomplete-item {
+      padding:0.75rem 1rem; cursor:pointer; transition:background 0.15s;
+      border-bottom:1px solid rgba(212,168,67,0.06);
+    }
+    .autocomplete-item:hover { background:rgba(212,168,67,0.08); }
+    .ac-title { font-size:0.9rem; font-weight:500; color:var(--cream); }
+    .ac-meta { font-size:0.75rem; color:var(--silver); margin-top:0.15rem; }
+    .ac-meta .genre-tag {
+      display:inline-block; padding:0.1rem 0.4rem;
+      background:rgba(212,168,67,0.1); border:1px solid var(--border);
+      color:var(--gold); font-size:0.65rem; margin-right:3px; margin-top:3px;
+    }
+    .searching-indicator { padding:0.75rem 1rem; color:var(--silver); font-size:0.85rem; }
+
+    /* SELECTED MOVIE DISPLAY */
+    .selected-movie-card {
+      display:none; background:var(--card2); border:1px solid var(--gold);
+      padding:1rem; margin-bottom:1.2rem; position:relative;
+    }
+    .selected-movie-card.visible { display:block; }
+    .sel-title { font-weight:600; font-size:1rem; color:var(--cream); margin-bottom:0.3rem; }
+    .sel-meta { font-size:0.8rem; color:var(--silver); }
+    .sel-genres { margin-top:0.4rem; display:flex; flex-wrap:wrap; gap:4px; }
+    .sel-genre-badge {
+      padding:0.15rem 0.5rem; background:rgba(212,168,67,0.1);
+      border:1px solid var(--border); color:var(--gold); font-size:0.7rem;
+    }
+    .clear-btn {
+      position:absolute; top:0.75rem; right:0.75rem;
+      background:none; border:none; color:var(--silver);
+      cursor:pointer; font-size:1.1rem; transition:color 0.2s;
+    }
+    .clear-btn:hover { color:var(--red); }
+
+    /* PREDICT BUTTON */
+    .btn-predict {
+      width:100%; background:var(--gold); color:var(--ink); border:none;
+      padding:0.95rem; font-family:'DM Sans',sans-serif; font-weight:700;
+      font-size:0.88rem; letter-spacing:3px; text-transform:uppercase;
+      cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+      clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .btn-predict:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 30px rgba(212,168,67,0.35); }
+    .btn-predict:disabled { opacity:0.45; cursor:not-allowed; }
+
+    /* LOADING */
+    .loading { display:none; text-align:center; padding:3rem; }
+    .loading.visible { display:block; }
+    .spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 1rem; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* RESULT */
+    .result-panel { display:none; animation:fadeIn 0.4s ease; }
+    .result-panel.visible { display:block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    .result-movie-title { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:2px; margin-bottom:0.5rem; }
+    .result-year { color:var(--silver); font-size:0.85rem; margin-bottom:1rem; }
+
+    .recommend-badge {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      padding:0.5rem 1.25rem; font-family:'Bebas Neue',sans-serif;
+      font-size:1rem; letter-spacing:3px; margin-bottom:1.25rem;
+    }
+    .recommend-badge.yes { background:rgba(67,184,156,0.15); border:1px solid var(--green); color:var(--green); }
+    .recommend-badge.no  { background:rgba(192,57,43,0.15);  border:1px solid var(--red);   color:var(--red); }
+
+    .stars-row { display:flex; gap:3px; font-size:1.4rem; margin-bottom:1.25rem; }
+    .star-gold { color:var(--gold); }
+    .star-dim  { color:rgba(212,168,67,0.2); }
+
+    .metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.25rem; }
+    .metric-box { background:var(--card2); border:1px solid var(--border); padding:1rem; text-align:center; }
+    .metric-val { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:1px; line-height:1; }
+    .metric-label { font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:var(--silver); margin-top:0.3rem; }
+
+    .result-genres-row { display:flex; flex-wrap:wrap; gap:4px; }
+    .rg-badge { padding:0.2rem 0.6rem; background:rgba(212,168,67,0.08); border:1px solid var(--border); color:var(--gold); font-size:0.72rem; }
+
+    /* EMPTY STATE */
+    .empty-result { text-align:center; padding:3rem 1rem; color:var(--silver); }
+    .empty-result .big { font-size:3rem; margin-bottom:1rem; }
+
+    /* GENRE RECOMMENDATIONS */
+    .genre-recs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:0.75rem; }
+    .rec-card {
+      background:var(--card2); border:1px solid var(--border); padding:1rem;
+      transition:transform 0.2s, border-color 0.2s; cursor:default; position:relative; overflow:hidden;
+    }
+    .rec-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--gold),var(--red)); }
+    .rec-card:hover { transform:translateY(-3px); border-color:rgba(212,168,67,0.4); }
+    .rec-title { font-weight:600; font-size:0.88rem; margin-bottom:0.35rem; line-height:1.3; color:var(--cream); }
+    .rec-year  { color:var(--silver); font-size:0.75rem; margin-bottom:0.4rem; }
+    .rec-genres { display:flex; flex-wrap:wrap; gap:3px; }
+    .rec-genre-tag { padding:0.1rem 0.4rem; background:rgba(212,168,67,0.08); border:1px solid var(--border); color:var(--gold); font-size:0.65rem; }
+
+    /* HISTORY TABLE */
+    .history-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    .history-table th { padding:0.7rem 1rem; text-align:left; font-size:0.68rem; letter-spacing:2px; text-transform:uppercase; color:var(--silver); border-bottom:1px solid var(--border); }
+    .history-table td { padding:0.8rem 1rem; border-bottom:1px solid rgba(212,168,67,0.06); vertical-align:middle; }
+    .history-table tr:hover td { background:rgba(212,168,67,0.025); }
+    .badge { display:inline-flex; padding:0.2rem 0.65rem; font-size:0.7rem; letter-spacing:1px; border:1px solid; }
+    .badge.yes { background:rgba(67,184,156,0.12); border-color:var(--green); color:var(--green); }
+    .badge.no  { background:rgba(192,57,43,0.12);  border-color:var(--red);   color:var(--red); }
+
+    /* ALERT */
+    .alert { padding:0.75rem 1rem; border-left:3px solid; font-size:0.85rem; margin-bottom:1rem; display:none; }
+    .alert.visible { display:block; }
+    .alert.error   { background:rgba(192,57,43,0.12); border-color:var(--red); color:#e74c3c; }
+    .alert.warning { background:rgba(212,168,67,0.12); border-color:var(--gold); color:var(--gold); }
+
+    @media (max-width:1100px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:900px) {
+      body { grid-template-columns:1fr; }
+      .sidebar { position:relative; height:auto; padding:1rem; flex-direction:row; flex-wrap:wrap; align-items:center; }
+      nav { flex-direction:row; }
+      .main { padding:1.5rem; }
+      .content-grid { grid-template-columns:1fr; }
+      .status-panel { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="/" class="logo">Cine<span>AI</span></a>
+
+  <!-- ML Status -->
+  <div class="status-panel">
+    <div class="status-item">
+      <div class="status-dot {{ 'dot-green' if model_info.model_loaded else 'dot-red' }}"></div>
+      <span>RF Model: {{ 'Loaded ✓' if model_info.model_loaded else 'Missing — add .pkl' }}</span>
+    </div>
+    <div class="status-item">
+      <div class="status-dot {{ 'dot-green' if model_info.data_loaded else 'dot-red' }}"></div>
+      <span>Movies: {{ model_info.total_movies }} records</span>
+    </div>
+    <div class="status-item">
+      <div class="status-dot {{ 'dot-green' if model_info.mapping_loaded else 'dot-red' }}"></div>
+      <span>Mapping: {{ 'Loaded ✓' if model_info.mapping_loaded else 'Missing' }}</span>
+    </div>
+    <div class="status-item">
+      <div class="status-dot dot-green"></div>
+      <span>Genres: {{ model_info.total_genres }} extracted</span>
+    </div>
+  </div>
+
+  <div class="user-badge">
+    <div class="avatar" style="background:{{ session.avatar_color }}">{{ session.username[0].upper() }}</div>
+    <div class="user-info">
+      <div class="name">{{ session.username }}</div>
+      <div class="role">Cinephile</div>
+    </div>
+  </div>
+
+  <nav>
+    <button class="nav-item active" onclick="showSection('predict', this)">
+      <span>🎬</span> Predict Movie
+    </button>
+    <button class="nav-item" onclick="showSection('history', this)">
+      <span>📋</span> Recent History
+    </button>
+    <a href="/history" class="nav-item"><span>📊</span> Full History</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="/logout" class="logout-btn"><span>🚪</span> Sign Out</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="main-header">
+    <h1>Dashboard</h1>
+    <div class="sub">Welcome back, {{ session.username }} · Hybrid RF Model Active</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">{{ stats.total }}</div><div class="stat-label">Total Predictions</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.recommended }}</div><div class="stat-label">Recommended</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.not_recommended }}</div><div class="stat-label">Not Recommended</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.avg_rating }}</div><div class="stat-label">Avg. Predicted Rating</div></div>
+  </div>
+
+  <!-- PREDICT SECTION -->
+  <div id="section-predict">
+
+    {% if not model_info.model_loaded %}
+    <div class="alert warning visible">
+       ML model files not found. Place <strong>best_recommendation_model.pkl, user_encoder.pkl, movie_encoder.pkl, scaler.pkl</strong> in the app folder, then restart.
+    </div>
+    {% endif %}
+    {% if not model_info.data_loaded %}
+    <div class="alert warning visible">
+       <strong>movies_metadata.csv</strong> not found. Place it in the app folder to enable movie search.
+    </div>
+    {% endif %}
+
+    <div class="content-grid">
+
+      <!-- INPUT FORM -->
+      <div class="card">
+        <div class="card-title"> Movie Predictor</div>
+
+        <div id="alertBox" class="alert error"></div>
+
+        <!-- MOVIE SEARCH -->
+        <div class="form-group">
+          <label>Search Movie <span style="color:var(--silver);font-size:0.65rem;">(from ML training data)</span></label>
+          <div class="search-wrap">
+            <input type="text" class="search-input" id="movieSearch"
+                   placeholder="Type movie title..." autocomplete="off"
+                   oninput="searchMovies(this.value)"/>
+            <div class="autocomplete-list" id="autocompleteList"></div>
+          </div>
+        </div>
+
+        <!-- SELECTED MOVIE DISPLAY -->
+        <div class="selected-movie-card" id="selectedMovieCard">
+          <button class="clear-btn" onclick="clearSelection()" title="Clear">✕</button>
+          <div class="sel-title" id="selTitle">—</div>
+          <div class="sel-meta" id="selMeta">—</div>
+          <div class="sel-genres" id="selGenres"></div>
+          <input type="hidden" id="selectedMovieId"/>
+          <input type="hidden" id="selectedMovieTitle"/>
+          <input type="hidden" id="selectedMovieYear"/>
+          <input type="hidden" id="selectedMovieGenres"/>
+        </div>
+
+        <div class="form-group" id="genreFilterGroup" style="display:none">
+          <label>Genres from CSV</label>
+          <div id="genreTagsDisplay" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+        </div>
+
+        <button class="btn-predict" id="predictBtn" onclick="runPrediction()">
+          Run ML Prediction →
+        </button>
+      </div>
+
+      <!-- RESULT PANEL -->
+      <div class="card">
+        <div class="card-title"> ML Prediction Result</div>
+
+        <div id="loadingState" class="loading">
+          <div class="spinner"></div>
+          <div style="color:var(--silver);font-size:0.85rem;letter-spacing:2px;">RUNNING HYBRID RF MODEL…</div>
+        </div>
+
+        <div id="resultPanel" class="result-panel">
+          <div class="result-movie-title" id="resultTitle">—</div>
+          <div class="result-year" id="resultYear"></div>
+          <div id="recommendBadge" class="recommend-badge yes">✓ Recommended</div>
+          <div class="stars-row" id="starsRow"></div>
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <div class="metric-val" id="metricRating" style="color:var(--gold)">—</div>
+              <div class="metric-label">Predicted Rating</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="metricConfidence" style="color:var(--purple)">—</div>
+              <div class="metric-label">Model Confidence</div>
+            </div>
+          </div>
+          <div class="result-genres-row" id="resultGenresRow"></div>
+          <div style="margin-top:0.75rem; font-size:0.72rem; color:var(--silver); letter-spacing:1px;" id="modelUsed"></div>
+        </div>
+
+        <div id="emptyResult" class="empty-result">
+          <div class="big"></div>
+          <div style="font-size:0.85rem;letter-spacing:1px;">Search a movie from the training data to get your ML prediction</div>
+        </div>
+      </div>
+
+      <!-- GENRE RECOMMENDATIONS FROM CSV -->
+      <div class="card card-full" id="genreRecsSection" style="display:none">
+        <div class="card-title"> Similar Movies from Dataset</div>
+        <div class="genre-recs-grid" id="genreRecsGrid"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HISTORY SECTION -->
+  <div id="section-history" style="display:none">
+    <div class="card">
+      <div class="card-title"> Recent Predictions</div>
+      {% if predictions %}
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Movie</th><th>Genres</th><th>Year</th>
+            <th>Rating</th><th>Confidence</th><th>Result</th><th>Model</th><th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in predictions %}
+          <tr>
+            <td style="font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.movie_title }}</td>
+            <td style="color:var(--silver);font-size:0.78rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.genre }}</td>
+            <td>{{ p.year }}</td>
+            <td style="color:var(--gold);font-weight:600;">★ {{ "%.1f"|format(p.predicted_rating) }}</td>
+            <td style="color:var(--purple);">{{ p.confidence }}%</td>
+            <td><span class="badge {{ 'yes' if p.recommendation == 'Recommended' else 'no' }}">{{ p.recommendation }}</span></td>
+            <td style="color:var(--silver);font-size:0.75rem;">{{ p.model_used or 'RF' }}</td>
+            <td style="color:var(--silver);font-size:0.78rem;">{{ p.created_at[:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="text-align:center;padding:3rem;color:var(--silver);">
+        <div style="font-size:3rem;margin-bottom:1rem;">📽️</div>
+        <div>No predictions yet. Search a movie and run the ML model!</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ─── State ───
+  let selectedMovie = null;
+  let searchTimeout;
+
+  // ─── Section toggle ───
+  function showSection(name, el) {
+    document.getElementById('section-predict').style.display = name === 'predict' ? 'block' : 'none';
+    document.getElementById('section-history').style.display = name === 'history' ? 'block' : 'none';
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (el) el.classList.add('active');
+  }
+
+  // ─── Search movies from CSV via API ───
+  async function searchMovies(query) {
+    clearTimeout(searchTimeout);
+    const list = document.getElementById('autocompleteList');
+    if (query.length < 2) { list.innerHTML = ''; return; }
+
+    list.innerHTML = '<div class="searching-indicator">Searching...</div>';
+
+    searchTimeout = setTimeout(async () => {
+      try {
+        const res  = await fetch(`/search_movies?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (data.length === 0) {
+          list.innerHTML = '<div class="searching-indicator" style="color:#666">No movies found</div>';
+          return;
+        }
+
+        list.innerHTML = data.map(m => {
+          const genres = (m.genres || '').split('|').slice(0, 4)
+            .map(g => `<span class="genre-tag">${g.trim()}</span>`).join('');
+          return `<div class="autocomplete-item" onclick="selectMovie(${m.movieId}, '${escapeJs(m.title)}', '${escapeJs(m.genres)}', ${m.year})">
+            <div class="ac-title">${m.title}</div>
+            <div class="ac-meta">${m.year} · <span style="color:var(--silver)">${m.genres}</span></div>
+          </div>`;
+        }).join('');
+      } catch(e) {
+        list.innerHTML = '<div class="searching-indicator" style="color:var(--red)">Search error</div>';
+      }
+    }, 280);
+  }
+
+  function escapeJs(str) {
+    return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
+  // ─── Select a movie ───
+  function selectMovie(movieId, title, genres, year) {
+    selectedMovie = { movieId, title, genres, year };
+
+    document.getElementById('selectedMovieId').value     = movieId;
+    document.getElementById('selectedMovieTitle').value  = title;
+    document.getElementById('selectedMovieYear').value   = year;
+    document.getElementById('selectedMovieGenres').value = genres;
+
+    document.getElementById('selTitle').textContent = title;
+    document.getElementById('selMeta').textContent  = `MovieID: ${movieId}  ·  Year: ${year}`;
+
+    // Show genre badges
+    const genreContainer = document.getElementById('selGenres');
+    genreContainer.innerHTML = (genres || '').split('|')
+      .map(g => `<span class="sel-genre-badge">${g.trim()}</span>`).join('');
+
+    document.getElementById('selectedMovieCard').classList.add('visible');
+    document.getElementById('movieSearch').value = '';
+    document.getElementById('autocompleteList').innerHTML = '';
+
+    clearResult();
+  }
+
+  function clearSelection() {
+    selectedMovie = null;
+    document.getElementById('selectedMovieCard').classList.remove('visible');
+    document.getElementById('movieSearch').value = '';
+    clearResult();
+  }
+
+  function clearResult() {
+    document.getElementById('resultPanel').classList.remove('visible');
+    document.getElementById('emptyResult').style.display = 'block';
+    document.getElementById('genreRecsSection').style.display = 'none';
+  }
+
+  // ─── Run ML Prediction ───
+  async function runPrediction() {
+    if (!selectedMovie) {
+      showAlert('Please search and select a movie first.'); return;
+    }
+
+    hideAlert();
+    document.getElementById('emptyResult').style.display = 'none';
+    document.getElementById('resultPanel').classList.remove('visible');
+    document.getElementById('loadingState').classList.add('visible');
+    document.getElementById('predictBtn').disabled = true;
+    document.getElementById('genreRecsSection').style.display = 'none';
+
+    try {
+      const res = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          movie_id: selectedMovie.movieId,
+          title:    selectedMovie.title,
+          genres:   selectedMovie.genres,
+          year:     selectedMovie.year
+        })
+      });
+
+      const data = await res.json();
+      document.getElementById('loadingState').classList.remove('visible');
+
+      if (data.error) { showAlert(data.error); return; }
+
+      const p = data.prediction;
+
+      // Fill result
+      document.getElementById('resultTitle').textContent = data.movie_title;
+      document.getElementById('resultYear').textContent  = `${data.year}`;
+      document.getElementById('metricRating').textContent     = '★ ' + p.predicted_rating.toFixed(1);
+      document.getElementById('metricConfidence').textContent = p.confidence + '%';
+      document.getElementById('starsRow').innerHTML = renderStars(p.predicted_rating);
+      document.getElementById('modelUsed').textContent = '🤖 ' + p.model_used;
+
+      // Genre row
+      const genresArr = (data.genres || '').split('|').filter(Boolean);
+      document.getElementById('resultGenresRow').innerHTML =
+        genresArr.map(g => `<span class="rg-badge">${g.trim()}</span>`).join('');
+
+      // Badge
+      const badge = document.getElementById('recommendBadge');
+      if (p.recommendation === 'Recommended') {
+        badge.className = 'recommend-badge yes';
+        badge.innerHTML = '✓ Recommended';
+      } else {
+        badge.className = 'recommend-badge no';
+        badge.innerHTML = '✗ Not Recommended';
+      }
+
+      document.getElementById('resultPanel').classList.add('visible');
+      document.getElementById('emptyResult').style.display = 'none';
+
+      // Genre recommendations from CSV
+      if (data.genre_recommendations && data.genre_recommendations.length > 0) {
+        const grid = document.getElementById('genreRecsGrid');
+        grid.innerHTML = data.genre_recommendations.map(m => {
+          const tags = (m.genres || '').split('|').slice(0,4)
+            .map(g => `<span class="rec-genre-tag">${g.trim()}</span>`).join('');
+          return `<div class="rec-card">
+            <div class="rec-title">${m.title}</div>
+            <div class="rec-year">${m.year}</div>
+            <div class="rec-genres">${tags}</div>
+          </div>`;
+        }).join('');
+        document.getElementById('genreRecsSection').style.display = 'block';
+      }
+
+    } catch(e) {
+      document.getElementById('loadingState').classList.remove('visible');
+      document.getElementById('emptyResult').style.display = 'block';
+      showAlert('Network error. Please try again.');
+    }
+
+    document.getElementById('predictBtn').disabled = false;
+  }
+
+  // ─── Stars ───
+  function renderStars(rating) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      if (rating >= i)       html += `<span class="star-gold">★</span>`;
+      else if (rating >= i - 0.5) html += `<span class="star-gold" style="opacity:0.6">★</span>`;
+      else                   html += `<span class="star-dim">★</span>`;
+    }
+    return html;
+  }
+
+  // ─── Alert ───
+  function showAlert(msg) {
+    const a = document.getElementById('alertBox');
+    a.textContent = msg;
+    a.classList.add('visible');
+  }
+  function hideAlert() {
+    document.getElementById('alertBox').classList.remove('visible');
+  }
+
+  // Close autocomplete on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap'))
+      document.getElementById('autocompleteList').innerHTML = '';
+  });
+</script>
+
+</body>
+</html>

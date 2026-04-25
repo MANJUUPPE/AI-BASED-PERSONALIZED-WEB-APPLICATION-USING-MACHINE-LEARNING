@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — CineAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #d4a843;
+      --red: #c0392b;
+      --cream: #f5f0e8;
+      --silver: #c8d0dc;
+      --green: #43b89c;
+      --border: rgba(212,168,67,0.3);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── FULL-PAGE BACKGROUND ── */
+    body {
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background:
+        linear-gradient(135deg, rgba(10,10,15,0.75) 0%, rgba(10,10,15,0.6) 100%),
+        url('/static/background.webp') center center / cover no-repeat fixed;
+    }
+
+    /* ── GLASS CARD ── */
+    .glass-card {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(10, 10, 22, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(212,168,67,0.28);
+      box-shadow:
+        0 20px 80px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      padding: 3rem 2.75rem;
+      animation: slideUp 0.5s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── LOGO ── */
+    .card-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 5px;
+      color: var(--gold);
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+    .card-logo span { color: var(--cream); }
+    .card-tagline {
+      text-align: center;
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(200,208,220,0.6);
+      margin-bottom: 2.5rem;
+    }
+    .divider {
+      width: 40px; height: 1px;
+      background: var(--gold);
+      margin: 0 auto 2.5rem;
+      opacity: 0.6;
+    }
+
+    /* ── HEADING ── */
+    .form-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 3px;
+      margin-bottom: 0.4rem;
+    }
+    .form-sub {
+      color: rgba(200,208,220,0.65);
+      font-size: 0.88rem;
+      margin-bottom: 2rem;
+    }
+    .form-sub a { color: var(--gold); text-decoration: none; }
+    .form-sub a:hover { text-decoration: underline; }
+
+    /* ── FLASH ── */
+    .flash {
+      padding: 0.7rem 1rem;
+      margin-bottom: 1.25rem;
+      border-left: 3px solid;
+      font-size: 0.85rem;
+      border-radius: 0 2px 2px 0;
+    }
+    .flash.error   { background: rgba(192,57,43,0.18); border-color: var(--red); color: #e87070; }
+    .flash.success { background: rgba(67,184,156,0.18); border-color: var(--green); color: var(--green); }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 1.25rem; }
+    label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(200,208,220,0.7);
+      margin-bottom: 0.45rem;
+    }
+    input {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(212,168,67,0.22);
+      color: var(--cream);
+      padding: 0.85rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s;
+      border-radius: 2px;
+    }
+    input:focus {
+      border-color: var(--gold);
+      background: rgba(255,255,255,0.09);
+    }
+    input::placeholder { color: rgba(200,208,220,0.3); }
+
+    /* ── SUBMIT ── */
+    .btn-submit {
+      width: 100%;
+      background: var(--gold);
+      color: #0a0a0f;
+      border: none;
+      padding: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 0.5rem;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 35px rgba(212,168,67,0.4);
+    }
+
+    .form-footer {
+      text-align: center;
+      color: rgba(200,208,220,0.55);
+      font-size: 0.85rem;
+      margin-top: 1.5rem;
+    }
+    .form-footer a { color: var(--gold); text-decoration: none; }
+
+    /* ── BACK LINK ── */
+    .back-link {
+      display: block;
+      text-align: center;
+      color: rgba(200,208,220,0.45);
+      text-decoration: none;
+      font-size: 0.78rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: var(--gold); }
+
+    /* ── MINI MOVIE BADGES ── */
+    .mini-movies {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .mini-badge {
+      padding: 0.25rem 0.7rem;
+      background: rgba(212,168,67,0.1);
+      border: 1px solid rgba(212,168,67,0.25);
+      color: var(--gold);
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      border-radius: 2px;
+    }
+    .mini-badge.green { background: rgba(67,184,156,0.1); border-color: rgba(67,184,156,0.3); color: var(--green); }
+  </style>
+</head>
+<body>
+
+<div class="glass-card">
+  <a href="/" class="card-logo">Cine<span>AI</span></a>
+  <div class="card-tagline">AI-Powered Movie Intelligence</div>
+  <div class="divider"></div>
+
+
+  <a href="/" class="back-link">← Back to Home</a>
+  <div class="form-heading">Welcome Back</div>
+  <p class="form-sub">New here? <a href="/register">Create an account</a></p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="/login">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password"/>
+    </div>
+    <button type="submit" class="btn-submit">Sign In →</button>
+  </form>
+
+  <div class="form-footer">
+    Don't have an account? <a href="/register">Register now</a>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prediction History — CineAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #0a0a0f;
+      --cream: #f5f0e8;
+      --gold: #d4a843;
+      --red: #c0392b;
+      --green: #43b89c;
+      --silver: #8e9aaf;
+      --card-bg: #12121a;
+      --card2: #1a1a26;
+      --border: rgba(212,168,67,0.18);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+    nav {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .logo span { color: var(--cream); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--silver);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .content { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 3px;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle { color: var(--silver); margin-bottom: 2rem; font-size: 0.95rem; }
+
+    /* SUMMARY CARDS */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .sum-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .sum-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: var(--gold);
+    }
+    .sum-label {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver);
+      margin-top: 0.3rem;
+    }
+
+    /* TABLE */
+    .table-wrap {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .table-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      padding: 0.85rem 1.25rem;
+      text-align: left;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(212,168,67,0.06);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+    tr:hover td { background: rgba(212,168,67,0.025); }
+    tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-flex;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .badge.yes { background: rgba(67,184,156,0.12); border-color: var(--green); color: var(--green); }
+    .badge.no { background: rgba(192,57,43,0.12); border-color: var(--red); color: var(--red); }
+    .rating-val { color: var(--gold); font-weight: 600; }
+    .confidence-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .bar-track {
+      flex: 1;
+      height: 4px;
+      background: var(--card2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; background: #a29bfe; border-radius: 2px; }
+    .empty-state {
+      padding: 5rem;
+      text-align: center;
+      color: var(--silver);
+    }
+    .empty-state .big { font-size: 4rem; margin-bottom: 1rem; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--silver);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+    @media (max-width: 768px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+      nav { padding: 1rem 1.5rem; }
+      .content { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Cine<span>AI</span></a>
+  <div class="nav-links">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/logout">Sign Out</a>
+  </div>
+</nav>
+
+<div class="content">
+  <a href="/dashboard" class="back-link" style="margin-bottom:1.5rem; display:inline-flex">← Back to Dashboard</a>
+  <h1>Prediction History</h1>
+  <p class="subtitle">All your AI movie predictions — complete record</p>
+
+  {% if predictions %}
+  {% set total = predictions|length %}
+  {% set rec_count = predictions|selectattr('recommendation', 'equalto', 'Recommended')|list|length %}
+  {% set avg_r = (predictions|sum(attribute='predicted_rating') / total)|round(2) %}
+
+  <div class="summary-grid">
+    <div class="sum-card">
+      <div class="sum-num">{{ total }}</div>
+      <div class="sum-label">Total Predictions</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-num" style="color:var(--green)">{{ rec_count }}</div>
+      <div class="sum-label">Recommended</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-num" style="color:var(--red)">{{ total - rec_count }}</div>
+      <div class="sum-label">Not Recommended</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-num">{{ avg_r }}</div>
+      <div class="sum-label">Avg. Rating</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">All Predictions</div>
+      <div style="color:var(--silver); font-size:0.8rem;">{{ total }} records</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Movie Title</th>
+          <th>Genres</th>
+          <th>Year</th>
+          <th>Predicted Rating</th>
+          <th>Confidence</th>
+          <th>Result</th>
+          <th>Date & Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in predictions %}
+        <tr>
+          <td style="color:var(--silver); font-size:0.8rem;">{{ loop.index }}</td>
+          <td style="font-weight:500; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ p.movie_title }}</td>
+          <td style="color:var(--silver); font-size:0.8rem; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ p.genre or '—' }}</td>
+          <td>{{ p.year }}</td>
+          <td class="rating-val">★ {{ "%.1f"|format(p.predicted_rating) }} / 5.0</td>
+          <td>
+            <div class="confidence-bar">
+              <span style="color:#a29bfe; font-size:0.85rem; min-width:42px;">{{ p.confidence }}%</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:{{ p.confidence }}%"></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge {{ 'yes' if p.recommendation == 'Recommended' else 'no' }}">
+              {{ p.recommendation }}
+            </span>
+          </td>
+          <td style="color:var(--silver); font-size:0.8rem; white-space:nowrap;">{{ p.created_at[:16].replace('T', ' ') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="table-wrap">
+    <div class="empty-state">
+      <div class="big">📽️</div>
+      <div style="font-weight:500; margin-bottom:0.5rem;">No predictions yet</div>
+      <div style="font-size:0.85rem;">Head to the dashboard and predict your first movie!</div>
+      <br>
+      <a href="/dashboard" style="color:var(--gold); text-decoration:none; font-size:0.85rem; letter-spacing:1px;">→ Go to Dashboard</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+</body>
+</html>

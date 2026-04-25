@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineAI — Personalized Movie Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #d4a843;
+      --red: #c0392b;
+      --cream: #f5f0e8;
+      --silver: #c8d0dc;
+      --border: rgba(212,168,67,0.35);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── FULL-PAGE BACKGROUND ── */
+    body {
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--cream);
+      overflow-x: hidden;
+      background:
+        linear-gradient(135deg, rgba(10,10,15,0.72) 0%, rgba(10,10,15,0.55) 100%),
+        url('/static/background.webp') center center / cover no-repeat fixed;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(10,10,15,0.55);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(212,168,67,0.15);
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .logo span { color: var(--cream); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--silver);
+      text-decoration: none;
+      font-size: 0.88rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .btn-nav {
+      background: var(--gold) !important;
+      color: #0a0a0f !important;
+      padding: 0.5rem 1.4rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      border-radius: 0;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 4rem;
+      padding-top: 5rem;
+    }
+
+    /* ── GLASS CONTAINER ── */
+    .glass-box {
+      background: rgba(10, 10, 20, 0.52);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(212,168,67,0.25);
+      border-radius: 4px;
+      padding: 3.5rem 4rem;
+      max-width: 680px;
+      box-shadow:
+        0 8px 60px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.1s ease forwards;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 1px;
+      background: var(--gold);
+    }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 7vw, 6.5rem);
+      line-height: 0.92;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.2s ease forwards;
+    }
+    h1 .accent { color: var(--gold); }
+    h1 .italic {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: #e05050;
+    }
+    .hero-sub {
+      font-size: 1rem;
+      color: rgba(245,240,232,0.78);
+      line-height: 1.75;
+      max-width: 460px;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.35s ease forwards;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.5s ease forwards;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: #0a0a0f;
+      padding: 0.9rem 2.2rem;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 40px rgba(212,168,67,0.45);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--cream);
+      padding: 0.9rem 2.2rem;
+      font-weight: 600;
+      font-size: 0.88rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid rgba(245,240,232,0.35);
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── FEATURES SECTION ── */
+    .features {
+      padding: 5rem 4rem;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      letter-spacing: 2px;
+      line-height: 1;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+    }
+
+    /* FEATURES GLASS GRID */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .feature-card {
+      background: rgba(10,10,20,0.5);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(212,168,67,0.18);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, background 0.3s;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      transform: scaleX(0);
+      transition: transform 0.4s;
+    }
+    .feature-card:hover { transform: translateY(-4px); background: rgba(15,15,28,0.65); }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .feature-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+    .feature-desc { color: rgba(245,240,232,0.7); line-height: 1.7; font-size: 0.9rem; }
+
+    .how-section {
+      padding: 5rem 4rem;
+    }
+    .steps {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .step {
+      display: flex;
+      gap: 2rem;
+      padding: 1.75rem 0;
+      border-bottom: 1px solid rgba(212,168,67,0.12);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-container {
+      background: rgba(10,10,20,0.5);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(212,168,67,0.18);
+      padding: 2rem 2.5rem;
+    }
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: rgba(212,168,67,0.2);
+      line-height: 1;
+      min-width: 60px;
+    }
+    .step h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.4rem;
+    }
+    .step p { color: rgba(245,240,232,0.65); line-height: 1.7; font-size: 0.9rem; }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 6rem 4rem;
+      text-align: center;
+    }
+    .cta-box {
+      background: rgba(10,10,20,0.55);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(212,168,67,0.25);
+      padding: 4rem;
+      max-width: 650px;
+      margin: 0 auto;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.5);
+    }
+    .cta-box h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
+    }
+    .cta-box p {
+      color: rgba(245,240,232,0.7);
+      font-size: 1rem;
+      max-width: 420px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 1.5rem 4rem;
+      background: rgba(10,10,15,0.7);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(212,168,67,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    footer p { color: rgba(200,208,220,0.6); font-size: 0.82rem; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero { padding: 1.5rem; padding-top: 5rem; }
+      .glass-box { padding: 2rem 1.5rem; }
+      .features, .how-section, .cta-section { padding: 3rem 1.5rem; }
+      footer { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">Cine<span>AI</span></a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="/login">Sign In</a>
+    <a href="/register" class="btn-nav">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="glass-box">
+    <div class="hero-eyebrow">AI-Powered Recommendation System</div>
+    <h1>
+      Discover<br>
+      Your Next<br>
+      <span class="italic">Obsession</span><br>
+      <span class="accent">Film.</span>
+    </h1>
+    <p class="hero-sub">
+      CineAI uses machine learning — Matrix Factorization, Hybrid RF & Neural Collaborative Filtering — trained on millions of real ratings to predict exactly how much you'll love any movie.
+    </p>
+    <div class="hero-buttons">
+      <a href="/register" class="btn-primary">Start Predicting →</a>
+      <a href="/login" class="btn-outline">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header">
+    <div class="section-label">What We Offer</div>
+    <div class="section-title">Powered by Three<br><span style="color:var(--gold)">AI Engines</span></div>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧮</div>
+      <div class="feature-title">Matrix Factorization</div>
+      <p class="feature-desc">SVD-based collaborative filtering trained on millions of ratings. Decomposes user-movie interactions into latent factors to surface hidden preferences.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌲</div>
+      <div class="feature-title">Hybrid RF Model</div>
+      <p class="feature-desc">Random Forest classifier fusing user signals, genre metadata, and release year into a powerful ensemble recommendation engine.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <div class="feature-title">Neural Collaborative Filtering</div>
+      <p class="feature-desc">Deep learning architecture with embedding layers learning non-linear user-movie interaction patterns beyond traditional methods.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎬</div>
+      <div class="feature-title">Genre Intelligence</div>
+      <p class="feature-desc">Smart genre-based discovery surfaces films you'll actually enjoy, with dynamic scoring based on multi-genre overlap analysis.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⭐</div>
+      <div class="feature-title">Rating Prediction</div>
+      <p class="feature-desc">Precise 0.5–5.0 star predictions with confidence scores. Know exactly how a film fits your taste before you hit play.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Personal Dashboard</div>
+      <p class="feature-desc">Track every prediction, review your complete recommendation history, and analyze your cinematic taste profile over time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-header">
+    <div class="section-label">The Process</div>
+    <div class="section-title">How <span style="color:var(--gold)">CineAI</span> Works</div>
+  </div>
+  <div class="steps">
+    <div class="step-container">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div>
+          <h3>Create Your Profile</h3>
+          <p>Register with your email and username. Your account stores all predictions and builds your taste profile over time.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div>
+          <h3>Search a Movie</h3>
+          <p>Type any movie title from the real training dataset. Autocomplete pulls directly from 84,000+ movies used to train the model.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div>
+          <h3>AI Analysis</h3>
+          <p>The Hybrid RF model runs feature engineering across user encoding, movie encoding, and year — the exact pipeline from training.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div>
+          <h3>Get Results</h3>
+          <p>Receive a predicted star rating, Recommended/Not Recommended verdict, model confidence score, and genre-matched similar films.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-box">
+    <h2>Ready to Find<br><span style="color:var(--gold)">Your Next Film?</span></h2>
+    <p>Join thousands of cinephiles using AI to navigate the endless world of cinema with precision.</p>
+    <a href="/register" class="btn-primary">Create Free Account →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="logo" style="font-size:1.3rem;">Cine<span>AI</span></a>
+  <p>© 2024 CineAI · AI-Based Personalized Web Application Using Machine Learning</p>
+  <p style="color:rgba(212,168,67,0.7); font-size:0.78rem; letter-spacing:1px;">ML PROJECT</p>
+</footer>
+
+</body>
+</html>
